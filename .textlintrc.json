@@ -1,0 +1,20 @@
+{
+  "plugins": {},
+  "filters": {},
+  "rules": {
+    "preset-ja-technical-writing": {
+      "ja-no-mixed-period": {
+        "periodMark": "."
+      },
+      "no-exclamation-question-mark": false
+    },
+    "textlint-rule-ja-space-between-half-and-full-width": {
+      "space": "always"
+    },
+    "prh": {
+      "rulePaths": [
+        "./prh.yml"
+      ]
+    }
+  }
+}

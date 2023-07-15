@@ -1,0 +1,37 @@
+rules:
+  # 一般用語
+  - expected: "ハードウェア"
+    pattern: "/ハードウェアー/"
+
+  - expected: "ソフトウェア"
+    pattern: "/ソフトウェアー/"
+
+  - expected: "セキュリティ"
+    pattern: "/セキュリティー/"
+
+  - expected: "サーバ"
+    pattern: "/サーバー/"
+
+  - expected: "ユーザ"
+    pattern: "/ユーザー/"
+
+  - expected: "Web"
+    pattern: "/ウェブ/"
+
+  - expected: "ブラウザ"
+    pattern: "/ブラウザー/"
+
+  - expected: "コンピュータ"
+    pattern: "/コンピューター/"
+
+  - expected: "バイナリ"
+    pattern: "/バイナリー/"
+
+  - expected: "メモリ"
+    pattern: "/メモリー/"
+
+  - expected: "デバッガ"
+    pattern: "/デバッガー/"
+
+  - expected: "プロファイラ"
+    pattern: "/プロファイラー/"
