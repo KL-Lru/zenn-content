@@ -169,9 +169,9 @@ DECLARE
 BEGIN
   -- ユーザ作成
   INSERT INTO users 
-    (name, email, password) 
+    (name, email, password_digest) 
     VALUES 
-    ('foobar', 'sample@example.com', 'pAssw0rd!') RETURNING id INTO user_id;
+    ('foobar', 'sample@example.com', 'xxxxxxxxx') RETURNING id INTO user_id;
   -- 存在しているユーザに対する投稿の登録は許容される
   INSERT INTO posts
     (author_id, title, body)
@@ -227,7 +227,7 @@ CREATE TABLE users (
   id SERIAL NOT NULL PRIMARY KEY,
   name VARCHAR NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL
+  password_digest VARCHAR(255) NOT NULL
 );
 ALTER TABLE users ADD COLUMN deleted_at TIMESTAMP;
 ```
@@ -243,18 +243,18 @@ CREATE OR REPLACE FUNCTION create_user_twice_test() RETURNS boolean AS $$
 BEGIN
   -- ユーザ作成
   INSERT INTO users 
-    (name, email, password) 
+    (name, email, password_digest) 
     VALUES 
-    ('foobar', 'sample@example.com', 'pAssw0rd!');
+    ('foobar', 'sample@example.com', 'xxxxxxxxx');
   
   -- 物理削除 
   DELETE FROM users WHERE id = LASTVAL();
 
   -- ユーザ再作成 (重複なし) 成功
   INSERT INTO users 
-    (name, email, password) 
+    (name, email, password_digest) 
     VALUES 
-    ('foobar', 'sample@example.com', 'pAssw0rd!');
+    ('foobar', 'sample@example.com', 'xxxxxxxxx');
 
   RETURN TRUE;
 END;
@@ -275,18 +275,18 @@ CREATE OR REPLACE FUNCTION create_user_twice_test() RETURNS boolean AS $$
 BEGIN
   -- ユーザ作成
   INSERT INTO users 
-    (name, email, password) 
+    (name, email, password_digest) 
     VALUES 
-    ('foobar', 'sample@example.com', 'pAssw0rd!');
+    ('foobar', 'sample@example.com', 'xxxxxxxxx');
   
   -- 論理削除 
   UPDATE users SET deleted_at = NOW() WHERE id = LASTVAL();
 
   -- ユーザ再作成 (重複) 失敗
   INSERT INTO users 
-    (name, email, password) 
+    (name, email, password_digest) 
     VALUES 
-    ('foobar', 'sample@example.com', 'pAssw0rd!');
+    ('foobar', 'sample@example.com', 'xxxxxxxxx');
 
   RETURN TRUE;
 END;
@@ -298,9 +298,9 @@ SELECT create_user_twice_test();
 -- ERROR:  duplicate key value violates unique constraint "users_email_key"
 -- DETAIL:  Key (email)=(sample@example.com) already exists.
 -- CONTEXT:  SQL statement "INSERT INTO users 
---     (name, email, password) 
+--     (name, email, password_digest) 
 --     VALUES 
---     ('foobar', 'sample@example.com', 'pAssw0rd!')"
+--     ('foobar', 'sample@example.com', 'xxxxxxxxx')"
 -- PL/pgSQL function create_user_twice_test() line 4 at SQL statement
 ```
 
