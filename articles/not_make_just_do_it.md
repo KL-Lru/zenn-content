@@ -3,7 +3,7 @@ title: "Not `make` do it, `just` do it!"
 emoji: "🚀"
 type: "tech"
 topics: ["Makefile", "Justfile"]
-published: false
+published: true
 ---
 
 # TL;DR
