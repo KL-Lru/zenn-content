@@ -12,9 +12,9 @@ React で CSS をゴリゴリ記述したく, Open Props + CSS Modules の構成
 
 Open Props は CSS の多様な変数やカスタムメディアクエリ等を提供してくれるライブラリであり, デザインの統一性を保ったり, 記述の煩雑さを低減してくれます.
 CSS Modules は CSS をスコープ化し, CSS Class 名の衝突などを防いでくれます.
-
 これらを利用していくことで, 効率的に Component 向けの CSS を書いていくことができます.
-しかし, CSS Modules はそれ単体では型情報がなかったり, Open Props はシンプルに導入しただけではカスタムメディアクエリが利用できなかったりなど迷いポイントもあります.
+
+しかし, CSS Modules はそれ単体では型情報がなかったり, Open Props はカスタムメディアクエリの利用にプラグインの導入が必要だったりと迷いポイントがじんわりあります.
 TypeScript や PostCSS のプラグインを利用して, これらを解消しつつ, 快適に CSS を書いて Component を構築していけるところを目指します.
 
 ## この記事執筆時点で利用したライブラリ
@@ -42,12 +42,17 @@ CSS 内にて次のような記述を入れることですべての変数定義�
 @import "open-props/style";
 ```
 
+:::message
+`open-props/style`を import した場合, import した CSS ファイルに変数定義が展開されるため, CSS Modules として扱う CSS 等で記述してしまうと, プロジェクト全体で変数が重複定義される場合があります.
+基本的にはグローバルな CSS ファイルでのみ import し, それ以外の CSS ファイルでは import しないようにすることをおすすめします.
+:::
+
 このパスについては open-props の `package.json` の `exports` にどの CSS が参照されているか記述されています. 一覧がほしい場合や, Import されている対象が知りたい場合はそちらを参照しましょう.
 
 ### Custom Media 対応
 
 Open Props はカスタムメディアクエリも提供してくれます.
-カスタムメディアクエリを利用する場合は, PostCSS のプラグイン`postcss-custom-media`を追加する必要があります.
+PostCSS でカスタムメディアクエリを利用する場合は, プラグイン`postcss-custom-media`を追加する必要があります.
 
 ```ts:postcss.config.ts
 import postcssCustomMedia from 'postcss-custom-media';
@@ -77,9 +82,17 @@ export default defineConfig({
 `postcss.config.ts`は Vite に自動読み込みされますが, CommonJS 形式を強制されたり, ES module 形式で記述するために拡張子を`mts`にしたりと迷走ポイントが微妙に存在するので, 直接 import してしまう形をおすすめします.
 :::
 
-これを記述することで, `@import "open-props/media"`を 記述している CSS ファイル内で, Open Props の提供するカスタムメディアクエリを利用することができます.
+変数定義の読み込みと同様に, カスタムメディアクエリも import を記述することで利用できるようになります.
 
-さらに, PostCSS のプラグイン`postcss-global-data`を追加することで, このカスタムメディアクエリをグローバルに展開し, 各 CSS での Import を省略できます.
+```css
+@import "open-props/media";
+```
+
+この形式を取る場合注意したいのは, **カスタムメディアクエリはこの`@import`は記述した CSS ファイルのみで利用できる**という点です.
+これは PostCSS がそれぞれの個々の CSS ファイルについて処理を行うようになっていることに起因するものです. この`@import`が記述された CSS ファイル中ではカスタムメディアクエリは実際のメディアクエリに置き換えられますが, 他のファイルはそのままの状態で残り, ブラウザに解釈されることはありません.
+
+各 CSS での Import を毎回記述しなくてはならないのは手間なので, 別の手段でカスタムメディアクエリを処理します.
+`@import`を記述する代わりに PostCSS のプラグイン`postcss-global-data`を追加することで, このカスタムメディアクエリをグローバルに処理することができるようになります.
 
 ```ts:postcss.config.ts
 import { createRequire } from 'node:module';
@@ -96,7 +109,7 @@ export default {
 };
 ```
 
-Vite にて [`require.resolve`が直接利用できない](https://ckeditor.com/docs/ckeditor5/latest/getting-started/legacy/advanced/alternative-setups/integrating-from-source-vite.html#vite-configuration)点に注意が必要です.
+このような設定を記述する場合は, Vite にて [`require.resolve`が直接利用できない](https://ckeditor.com/docs/ckeditor5/latest/getting-started/legacy/advanced/alternative-setups/integrating-from-source-vite.html#vite-configuration)点に注意が必要です.
 
 ### VS Code の拡張
 
@@ -117,8 +130,7 @@ Vite にて [`require.resolve`が直接利用できない](https://ckeditor.com/
 
 ## CSS Modules の導入
 
-Vite ではやることはありません. CSS Modules はデフォルトでサポートされています.
-
+Vite では CSS Modules はデフォルトでサポートされています.
 コンポーネントから参照する CSS ファイルはすべて`module.css`で終わるようにしておきましょう.
 
 ## Typed CSS Modules の導入
@@ -129,7 +141,7 @@ Vite で CSS Modules を単に導入しただけでは, 型情報が `CSSModuleC
 Typed CSS Modules を利用することで, CSS Modules から生成される`.d.ts`ファイルに型情報が追加することができます.
 
 :::message
-めちゃくちゃ似ているライブラリに`typed-scss-modules`がありますが, Open Props とかの過程で PostCSS を入れているので, 追加で同様の役割を担う SCSS を入れるのは避けたい意図で当記事では`typed-css-modules`を利用しています.
+めちゃくちゃ似ているライブラリに`typed-scss-modules`がありますが, Open Props とかの過程で PostCSS を入れており, 追加で同様の役割を担う SCSS を入れるのは避けたい意図で当記事では`typed-css-modules`を利用しています.
 :::
 
 以下実コードは`src`ディレクトリ, `generated`ディレクトリに型定義ファイルを生成するものとなっています.
@@ -347,7 +359,7 @@ _Dark Mode_
 
 ### ビルド後の CSS
 
-コンフリクトしそうな CSS を記述していますが, CSS Module を使っていることで, 他の Component と衝突することはないので気にする必要はありません.
+コンフリクトしそうな CSS Class を記述していますが, CSS Module を使っていることで, 他の Component と衝突することはないので気にする必要はありません.
 ビルドすると次のような CSS が生成され, それぞれの Component に適用されます.
 
 ```css:after_build.css
@@ -359,17 +371,18 @@ _Dark Mode_
 ._button__label_1krtr_43{display:inline-block;font-size:var(--font-size-0)}
 ```
 
-### 開発中の様子
+### CSS 変数の補完
 
 CSS を記述した時点で, 各種 CSS 変数の値の内容は参照することができるようになっています.
 色等についても, エディタ補完で色情報が表示されるようになっているのが確認できます.
 
 ![](/images/typed_postcss_module_in_vite/css_variables.png)
 
-サイズを指定したい場合も, `var(--size`あたりまで入力したところでサジェスト機能を利用できます.
-困ったらここから選べばよくなります.
+サイズを指定したい場合も, `var(--size`あたりまで入力したところでサジェスト機能を利用できます. 困ったらここから選べば良い.
 
 ![](/images/typed_postcss_module_in_vite/value_suggest.png)
+
+### CSS Modules の型情報
 
 また, CSS Modules を参照した先の CSS Class 名は TypeScript から認識され, 確認可能な状態になっています.
 
