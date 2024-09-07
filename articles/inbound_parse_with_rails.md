@@ -18,7 +18,7 @@ https://sendgrid.kke.co.jp/docs/API_Reference/Webhooks/parse.html
 
 ## TL;DR
 
-次の条件を全て満たすリクエストが来た場合に Rack が強制的に 500 エラーを返却します.
+次の条件を全て満たすリクエストが来た場合に強制的に 500 エラーが返却されます.
 
 - `multipart/mixed`などの Multipart リクエスト
 - `charset`が`ISO-2022-JP`や`UTF-7`などのテキストフィールドが含まれている
