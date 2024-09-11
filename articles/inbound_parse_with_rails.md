@@ -18,6 +18,11 @@ https://sendgrid.kke.co.jp/docs/API_Reference/Webhooks/parse.html
 
 ## TL;DR
 
+:::message
+本記事執筆時点では現象が発生していましたが, 現在(2024/09/10)は Inbound Parse Webhook で charset が指定されなくなり 現象は発生しないようになったようです.
+適用する必要はなくなりましたが, 今後のために記録として残しています.
+:::
+
 次の条件を全て満たすリクエストが来た場合に強制的に 500 エラーが返却されます.
 
 - `multipart/mixed`などの Multipart リクエスト
