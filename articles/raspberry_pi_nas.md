@@ -3,7 +3,7 @@ title: Raspberry Pi を NAS にする
 emoji: "🗃"
 type: "tech"
 topics: ["RaspberryPi", "NAS"]
-published: true
+published: false
 ---
 
 ## はじめに
